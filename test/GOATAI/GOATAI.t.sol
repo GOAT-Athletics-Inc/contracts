@@ -794,13 +794,17 @@ contract GOATAITest is Test {
         goatAI.setExempt(exemptAccounts, true);
     }
 
-    function test_GOATAI_FeeManagement_SetExempt_RevertsTooManyExemptions() public {
+    function test_GOATAI_FeeManagement_SetExempt_RevertsTooManyExemptions()
+        public
+    {
         vm.prank(goatAIOps);
         address[] memory exemptAccounts = new address[](50);
         for (uint256 i = 0; i < 50; i++) {
             exemptAccounts[i] = makeAddr("exempt");
         }
-        vm.expectRevert(abi.encodeWithSelector(ExceededMaxLength.selector, 20, 50));
+        vm.expectRevert(
+            abi.encodeWithSelector(ExceededMaxLength.selector, 20, 50)
+        );
         goatAI.setExempt(exemptAccounts, true);
     }
 
@@ -902,11 +906,11 @@ contract GOATAITest is Test {
         assertEq(goatAI.clock(), future);
     }
 
-    function test_InitialNonceIsZero() public view {
+    function test_GOATAI_InitialNonceIsZero() public view {
         assertEq(goatAI.nonces(user1), 0, "Initial nonce should be zero");
     }
 
-    function test_NonceIncrementWithPermit() public {
+    function test_GOATAI_NonceIncrementWithPermit() public {
         uint256 amount = 1000e18;
         uint256 deadline = block.timestamp + 1 days;
 
@@ -944,7 +948,7 @@ contract GOATAITest is Test {
         );
     }
 
-    function test_RevertExpiredPermit() public {
+    function test_GOATAI_RevertExpiredPermit() public {
         uint256 amount = 1000e18;
         uint256 deadline = block.timestamp - 1; // Expired deadline
 
@@ -982,5 +986,17 @@ contract GOATAITest is Test {
             0,
             "Nonce should not change on failed permit"
         );
+    }
+
+    function test_GOATAI_RenounceRole_ErrorsIfAdmin() public {
+        vm.prank(goatAIOps);
+        vm.expectRevert("AccessControl: cannot renounce Admin role");
+        goatAI.renounceRole(DEFAULT_ADMIN_ROLE, goatAIOps);
+    }
+
+    function test_GOATAI_RenounceRole_AllowedIfOtherRole() public {
+        vm.prank(goatAIOps);
+        goatAI.renounceRole(FEE_MANAGER_ROLE, goatAIOps);
+        assert(!goatAI.hasRole(FEE_MANAGER_ROLE, goatAIOps));
     }
 }

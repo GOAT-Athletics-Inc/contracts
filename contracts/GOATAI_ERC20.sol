@@ -493,4 +493,15 @@ contract GOATAI_ERC20 is
         // at this point, this is a regular transfer or burn
         fee.netAmount = amount;
     }
+
+    function renounceRole(
+        bytes32 role,
+        address account
+    ) public virtual override {
+        require(
+            role != DEFAULT_ADMIN_ROLE,
+            "AccessControl: cannot renounce Admin role"
+        );
+        super.renounceRole(role, account);
+    }
 }
