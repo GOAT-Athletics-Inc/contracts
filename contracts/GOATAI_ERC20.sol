@@ -54,6 +54,9 @@ contract GOATAI_ERC20 is
     /// @notice Maximum fee percentage allowed - 7.5%
     uint256 private constant MAX_FEE_BPS = 7_50;
 
+    /// @notice Maximum number of accounts that can be made exempt/non-exempt from fees in a single transaction
+    uint256 private constant MAX_SET_EXEMPT_LENGTH = 20;
+
     /// @notice buy fee in basis points
     uint256 public buyFeeBps;
     /// @notice sell fee in basis points
@@ -322,7 +325,8 @@ contract GOATAI_ERC20 is
     ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         uint256 aLength = accounts.length;
         if (aLength == 0) revert MinLength(1);
-        if (aLength > 20) revert ExceededMaxLength(20, aLength);
+        if (aLength > MAX_SET_EXEMPT_LENGTH)
+            revert ExceededMaxLength(MAX_SET_EXEMPT_LENGTH, aLength);
 
         for (uint256 i = 0; i < aLength; ++i) {
             feeExemptions[accounts[i]] = exempt;
@@ -492,5 +496,16 @@ contract GOATAI_ERC20 is
         }
         // at this point, this is a regular transfer or burn
         fee.netAmount = amount;
+    }
+
+    function renounceRole(
+        bytes32 role,
+        address account
+    ) public virtual override {
+        require(
+            role != DEFAULT_ADMIN_ROLE,
+            "AccessControl: cannot renounce Admin role"
+        );
+        super.renounceRole(role, account);
     }
 }
