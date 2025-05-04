@@ -331,7 +331,8 @@ contract GOATAITreasury is
     /// @param slippageToleranceBps The maximum acceptable slippage in basis points (1/100 of 1%)
     function withdrawWithSwap(
         uint256 amount,
-        uint256 slippageToleranceBps
+        uint256 slippageToleranceBps,
+        uint256 deadlineOffsetSeconds
     ) external nonReentrant whenNotPaused onlyRole(EXECUTOR_ROLE) {
         if (amount == 0) revert InvalidWithdrawalAmount();
         if (slippageToleranceBps > MAX_SLIPPAGE_TOLERANCE)
@@ -378,7 +379,7 @@ contract GOATAITreasury is
                 swapParams.amountOutMin,
                 swapParams.path,
                 swapParams.recipient,
-                block.timestamp + 300 // 5 minutes
+                block.timestamp + deadlineOffsetSeconds
             )
         {
             uint256 outputOut = outputERC20.balanceOf(swapParams.recipient) -
@@ -386,7 +387,7 @@ contract GOATAITreasury is
 
             emit WithdrawalWithSwap(
                 swapParams.baseToken,
-                amount,
+                swapParams.amount,
                 swapParams.outputToken,
                 outputOut,
                 swapParams.recipient

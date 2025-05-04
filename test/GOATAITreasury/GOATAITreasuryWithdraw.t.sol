@@ -57,7 +57,7 @@ contract GOATAITreasuryWithdrawTest is Test, GOATAITreasurySetupTest {
         uint256 slippageTolerance = 5_50;
         vm.deal(executor, 0.01 ether);
         vm.prank(executor);
-        goataiTreasury.withdrawWithSwap(withdrawAmount, slippageTolerance);
+        goataiTreasury.withdrawWithSwap(withdrawAmount, slippageTolerance, 300);
 
         assert(USDC.balanceOf(charityWallet) > 0);
         assertEq(goatAI.balanceOf(charityWallet), 0);
@@ -147,7 +147,7 @@ contract GOATAITreasuryWithdrawTest is Test, GOATAITreasurySetupTest {
         uint256 slippageTolerance = 5_50;
         vm.deal(charityWallet, 0.01 ether);
         vm.prank(charityWallet);
-        goataiTreasury.withdrawWithSwap(withdrawAmount, slippageTolerance);
+        goataiTreasury.withdrawWithSwap(withdrawAmount, slippageTolerance, 300);
 
         assert(USDC.balanceOf(charityWallet) > 0);
         assertEq(goatAI.balanceOf(charityWallet), 0);
@@ -187,7 +187,7 @@ contract GOATAITreasuryWithdrawTest is Test, GOATAITreasurySetupTest {
         uint256 slippageTolerance = 5_50;
         vm.deal(executor, 0.01 ether);
         vm.prank(executor);
-        goataiTreasury.withdrawWithSwap(wethAmount, slippageTolerance);
+        goataiTreasury.withdrawWithSwap(wethAmount, slippageTolerance, 300);
 
         assertEq(goataiTreasury.recipient(), charityWallet);
         assert(USDC.balanceOf(charityWallet) > 0);
@@ -218,7 +218,7 @@ contract GOATAITreasuryWithdrawTest is Test, GOATAITreasurySetupTest {
         uint256 slippageTolerance = 5_50;
         vm.deal(executor, 0.01 ether);
         vm.prank(executor);
-        goataiTreasury.withdrawWithSwap(withdrawAmount, slippageTolerance);
+        goataiTreasury.withdrawWithSwap(withdrawAmount, slippageTolerance, 300);
 
         assertEq(goataiTreasury.recipient(), charityWallet);
         assert(weth.balanceOf(charityWallet) > 0);
@@ -244,7 +244,7 @@ contract GOATAITreasuryWithdrawTest is Test, GOATAITreasurySetupTest {
         vm.deal(charityWallet, 0.01 ether);
         vm.prank(charityWallet);
         vm.expectRevert(abi.encodeWithSelector(InsufficientBalance.selector));
-        goataiTreasury.withdrawWithSwap(depositedAmount + 1, 100);
+        goataiTreasury.withdrawWithSwap(depositedAmount + 1, 100, 300);
     }
 
     function test_GOATAITreasury_WithdrawToUSDC_ErrorsAsAnybodyElse() public {
@@ -261,7 +261,7 @@ contract GOATAITreasuryWithdrawTest is Test, GOATAITreasurySetupTest {
                 0xd8aa0f3194971a2a116679f7c2090f6939c8d4e01a2a8d7e41d55e5351469e63
             )
         );
-        goataiTreasury.withdrawWithSwap(withdrawAmount, 5_50);
+        goataiTreasury.withdrawWithSwap(withdrawAmount, 5_50, 300);
     }
 
     function test_GOATAITreasury_WithdrawToUSDC_ErrorsSlippageTooHigh() public {
@@ -274,7 +274,7 @@ contract GOATAITreasuryWithdrawTest is Test, GOATAITreasurySetupTest {
         vm.expectRevert(
             abi.encodeWithSelector(InvalidSlippageTolerance.selector)
         );
-        goataiTreasury.withdrawWithSwap(withdrawAmount, 20_00);
+        goataiTreasury.withdrawWithSwap(withdrawAmount, 20_00, 300);
     }
 
     function test_GOATAITreasury_WithdrawToUSDC_ErrorsZeroAmount() public {
@@ -287,7 +287,7 @@ contract GOATAITreasuryWithdrawTest is Test, GOATAITreasurySetupTest {
         vm.expectRevert(
             abi.encodeWithSelector(InvalidWithdrawalAmount.selector)
         );
-        goataiTreasury.withdrawWithSwap(0, 5_00);
+        goataiTreasury.withdrawWithSwap(0, 5_00, 300);
     }
 
     function test_GOATAITreasury_WithdrawDirect_AsExecutor() public {

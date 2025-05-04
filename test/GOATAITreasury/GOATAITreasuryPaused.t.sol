@@ -28,7 +28,7 @@ contract GOATAITreasuryPausedTest is Test, GOATAITreasurySetupTest {
 
         vm.prank(executor);
         vm.expectRevert(abi.encodeWithSelector(EnforcedPause.selector));
-        goataiTreasury.withdrawWithSwap(1_000_000_000e18, 500);
+        goataiTreasury.withdrawWithSwap(1_000_000_000e18, 500, 300);
     }
 
     function test_GOATAITreasury_Paused_ShouldNotWithdrawWithSwap_AsRecipient()
@@ -38,7 +38,7 @@ contract GOATAITreasuryPausedTest is Test, GOATAITreasurySetupTest {
 
         vm.prank(charityWallet);
         vm.expectRevert(abi.encodeWithSelector(EnforcedPause.selector));
-        goataiTreasury.withdrawWithSwap(1_000_000_000e18, 500);
+        goataiTreasury.withdrawWithSwap(1_000_000_000e18, 500, 300);
     }
 
     function test_GOATAITreasury_Paused_ShouldNotWithdrawDirectly_AsExecutor()
