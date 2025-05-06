@@ -42,10 +42,12 @@ interface IGOATAITreasury {
     /// @dev Uses Uniswap V2 for swapping with fee-on-transfer token support
     /// @dev Only Executors can call this function
     /// @param amount The amount of base tokens to swap
-    /// @param slippageToleranceBps The maximum acceptable slippage in basis points (1/100 of 1%)
+    /// @param slippageToleranceBps The maximum acceptable slippage in basis points
+    /// @param deadlineOffsetSeconds The time in seconds before the swap expires
     function withdrawWithSwap(
         uint256 amount,
-        uint256 slippageToleranceBps
+        uint256 slippageToleranceBps,
+        uint256 deadlineOffsetSeconds
     ) external;
 
     /// @notice Withdraws base tokens directly to the recipient without swapping

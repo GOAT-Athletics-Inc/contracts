@@ -83,7 +83,7 @@ struct SwapParams {
     address recipient;
     /// @notice The amount of base tokens to swap
     uint256 amount;
-    /// @notice The slippage tolerance in basis points (1/100 of 1%)
+    /// @notice The slippage tolerance in basis points
     uint256 slippageTolerance;
     /// @notice The minimum amount of output tokens to receive
     uint256 amountOutMin;
@@ -295,11 +295,22 @@ contract GOATAITreasury is
         swapParams.amount = amount;
         swapParams.slippageTolerance = slippageToleranceBps;
 
-        /// swap base-token --> WETH --> output-token
-        swapParams.path = new address[](3);
-        swapParams.path[0] = swapParams.baseToken;
-        swapParams.path[1] = router.WETH();
-        swapParams.path[2] = swapParams.outputToken;
+        /// @dev if baseToken or outputToken is not WETH, path will use WETH as intermediary
+        if (
+            swapParams.baseToken != router.WETH() &&
+            swapParams.outputToken != router.WETH()
+        ) {
+            ///@dev swap base-token --> WETH --> output-token
+            swapParams.path = new address[](3);
+            swapParams.path[0] = swapParams.baseToken;
+            swapParams.path[1] = router.WETH();
+            swapParams.path[2] = swapParams.outputToken;
+        } else {
+            /// @dev otherwise swap directly between wrapped eth and other token
+            swapParams.path = new address[](2);
+            swapParams.path[0] = swapParams.baseToken;
+            swapParams.path[1] = swapParams.outputToken;
+        }
 
         uint256[] memory amountsOut = router.getAmountsOut(
             amount,
@@ -320,7 +331,8 @@ contract GOATAITreasury is
     /// @param slippageToleranceBps The maximum acceptable slippage in basis points (1/100 of 1%)
     function withdrawWithSwap(
         uint256 amount,
-        uint256 slippageToleranceBps
+        uint256 slippageToleranceBps,
+        uint256 deadlineOffsetSeconds
     ) external nonReentrant whenNotPaused onlyRole(EXECUTOR_ROLE) {
         if (amount == 0) revert InvalidWithdrawalAmount();
         if (slippageToleranceBps > MAX_SLIPPAGE_TOLERANCE)
@@ -367,7 +379,7 @@ contract GOATAITreasury is
                 swapParams.amountOutMin,
                 swapParams.path,
                 swapParams.recipient,
-                block.timestamp + 300 // 5 minutes
+                block.timestamp + deadlineOffsetSeconds
             )
         {
             uint256 outputOut = outputERC20.balanceOf(swapParams.recipient) -
@@ -375,7 +387,7 @@ contract GOATAITreasury is
 
             emit WithdrawalWithSwap(
                 swapParams.baseToken,
-                amount,
+                swapParams.amount,
                 swapParams.outputToken,
                 outputOut,
                 swapParams.recipient
