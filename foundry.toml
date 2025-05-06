@@ -5,6 +5,7 @@ libs = ['node_modules', 'lib']
 test = 'test'
 cache_path  = 'cache_forge'
 fork_url = 'https://mainnet.base.org'
+solc_version = '0.8.28'
 
 [rpc_endpoints]
 base = 'https://mainnet.base.org'
